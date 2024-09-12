@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ElectroDetali.DBModels;
+namespace ElectroDetali.Models;
 
 public partial class PickUpPoint
 {

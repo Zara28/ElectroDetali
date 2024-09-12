@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace ElectroDetali.DBModels;
+namespace ElectroDetali.Models;
 
 public partial class ElectroDetaliContext : DbContext
 {
@@ -24,6 +24,8 @@ public partial class ElectroDetaliContext : DbContext
     public virtual DbSet<Good> Goods { get; set; }
 
     public virtual DbSet<PickUpPoint> PickUpPoints { get; set; }
+
+    public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -113,6 +115,26 @@ public partial class ElectroDetaliContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("adress");
             entity.Property(e => e.Time).HasColumnName("time");
+        });
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("review_pkey");
+
+            entity.ToTable("review");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Goodid).HasColumnName("goodid");
+            entity.Property(e => e.Userid).HasColumnName("userid");
+            entity.Property(e => e.Value).HasColumnName("value");
+
+            entity.HasOne(d => d.Good).WithMany(p => p.Reviews)
+                .HasForeignKey(d => d.Goodid)
+                .HasConstraintName("review_fk");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Reviews)
+                .HasForeignKey(d => d.Userid)
+                .HasConstraintName("review_fk_1");
         });
 
         modelBuilder.Entity<User>(entity =>

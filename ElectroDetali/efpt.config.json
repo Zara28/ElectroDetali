@@ -6,7 +6,7 @@
    "IncludeConnectionString": true,
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "DBModels",
+   "OutputPath": "Models",
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "ElectroDetali",
    "Schemas": null,
@@ -28,6 +28,10 @@
       },
       {
          "Name": "public.pick_up_point",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.review",
          "ObjectType": 0
       },
       {

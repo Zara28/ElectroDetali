@@ -1,0 +1,45 @@
+﻿@page
+@model ElectroDetali.Pages.Goods.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<div>
+    @if (ViewData["Category"] is List<Models.Category>)
+    {
+        @foreach (var cat in (List<Models.Category>)ViewData["Category"])
+        {
+            <div style="vertical-align:top; display:inline-block; width:max-content">
+                <div class="card">
+                    <div class="card-body">
+                        <a href="./Index?id=@cat.Id">@cat.Name</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+    }
+</div>
+<table class="table">
+    <tbody style="vertical-align:bottom">
+@foreach (var item in Model.Good) {
+        <tr>
+           <div class="card" style="width: 18rem;">
+              <img src="@item.Image" class="card-img-top" alt="Изображение скоро появится">
+              <div class="card-body">
+                <h2 class="card-text">@item.Name @item.Price</h2>
+                <p class="card-text">@item.Description</p>
+              </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"> <a asp-page="./Edit" asp-route-id="@item.Id">Изменить</a></li>
+                        <li class="list-group-item"> <a asp-page="./Details" asp-route-id="@item.Id">Подробнее</a></li>
+                        <li class="list-group-item"> <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a></li>
+                    </ul>
+            </div>
+        </tr>
+}
+    </tbody>
+</table>

@@ -4,3 +4,6 @@ create table "user" (id serial primary key, email varchar (50), name varchar(100
 create table good (id serial primary key, name varchar(100), description varchar(200), price decimal, categoryId int, image text);
 create table buy (id serial primary key, goodId int, userId int, email varchar(100), datecreate timestamp, datedelivery timestamp, isBasket boolean);
 
+insert into category (name) values ('Электрооборудование автомобилей'),
+('Кабели'), ('Электрические соединения'), ('Системы СЕЕ');
+create table review(id serial, goodId int, userid int, value text);

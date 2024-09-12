@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace ElectroDetali.DBModels;
+namespace ElectroDetali.Models;
 
-public partial class Buy
+public partial class Review
 {
     public int Id { get; set; }
 
@@ -13,19 +13,9 @@ public partial class Buy
 
     public int? Userid { get; set; }
 
-    public string Email { get; set; }
-
-    public DateTime? Datecreate { get; set; }
-
-    public DateTime? Datedelivery { get; set; }
-
-    public bool? Isbasket { get; set; }
-
-    public int Pointid { get; set; }
+    public string Value { get; set; }
 
     public virtual Good Good { get; set; }
-
-    public virtual PickUpPoint Point { get; set; }
 
     public virtual User User { get; set; }
 }
