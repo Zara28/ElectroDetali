@@ -1,0 +1,19 @@
+﻿@page
+@model ElectroDetali.Pages.User.RegisterModel
+@{
+}
+<form method="post">
+    <div class="form-group">
+        <label for="InputName">Имя</label>
+        <input class="form-control" name="InputName" id="InputName" placeholder="Введите имя">
+    </div>
+    <div class="form-group">
+        <label for="InputEmail">Почта</label>
+        <input type="email" class="form-control" name="InputEmail" id="InputEmail" aria-describedby="emailHelp" placeholder="Введите почту">
+    </div>
+    <div class="form-group">
+        <label for="InputPassword">Пароль</label>
+        <input type="password" class="form-control" name="InputPassword" id="InputPassword" placeholder="Введите пароль">
+    </div>
+    <button type="submit" class="btn btn-primary">Войти</button>
+</form>

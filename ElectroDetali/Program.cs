@@ -3,13 +3,18 @@ using ElectroDetali.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
+{
+    options.Conventions.AddPageRoute("/Goods/Index", "");
+}); ;
 
 builder.Services.AddScoped<ElectroDetaliContext>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession(s => s.IdleTimeout = TimeSpan.FromMinutes(30));
 
 var app = builder.Build();
 
-
+app.UseSession();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

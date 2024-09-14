@@ -12,16 +12,18 @@ namespace ElectroDetali.Pages.Goods
     public class DetailsModel : PageModel
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
-
-        public DetailsModel(ElectroDetali.Models.ElectroDetaliContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public DetailsModel(ElectroDetali.Models.ElectroDetaliContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public Good Good { get; set; } 
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
+            
             if (id == null || _context.Goods == null)
             {
                 return NotFound();
@@ -50,6 +52,18 @@ namespace ElectroDetali.Pages.Goods
         {
             var id = form["id"];
             var text = form["review"];
+
+            if (Goods.IndexModel.currentUser == null)
+            {
+                var user = new Models.User
+                {
+                    Name = _httpContextAccessor.HttpContext.Session.Id
+                };
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                Goods.IndexModel.currentUser = user;
+            }
+
             var review = new Review
             {
                 Goodid = Convert.ToInt32(id),
@@ -65,13 +79,26 @@ namespace ElectroDetali.Pages.Goods
             var id = form["id"];
             var pick = form["selector"];
             var dateAdd = _context.PickUpPoints.First(f => f.Id == Convert.ToInt32(pick));
+
+            if (Goods.IndexModel.currentUser == null)
+            {
+                var user = new Models.User
+                {
+                    Name = _httpContextAccessor.HttpContext.Session.Id
+                };
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                Goods.IndexModel.currentUser = user;
+            }
+
             var buy = new Buy
             {
                 Goodid=Convert.ToInt32(id),
                 Pointid=Convert.ToInt32(pick),
                 Datedelivery = DateTime.Now.Date.AddDays((double)dateAdd.Time),
                 Datecreate = DateTime.Now.Date,
-                Isbasket = true
+                Isbasket = true,
+                Userid = Goods.IndexModel.currentUser.Id,
             };
             _context.Buys.Add(buy);
             _context.SaveChanges();

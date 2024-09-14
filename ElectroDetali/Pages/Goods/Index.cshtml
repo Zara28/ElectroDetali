@@ -4,9 +4,20 @@
 @{
     ViewData["Title"] = "Index";
 }
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+@if ((Goods.IndexModel.currentUser != null && Goods.IndexModel.currentUser.Email != null) && Goods.IndexModel.currentUser.Isadmin == true)
+{
+    <p>
+        <a asp-page="Create">Добавить новый товар</a>
+    </p>
+}
+
+<form>
+    <p>
+        Поиск: <input type="text" asp-for="SearchString" />
+        <input type="submit" value="Поиск" />
+    </p>
+</form>
+
 <div>
     @if (ViewData["Category"] is List<Models.Category>)
     {
@@ -22,12 +33,7 @@
         }
     }
 </div>
-<form>
-    <p>
-        Поиск: <input type="text" asp-for="SearchString" />
-        <input type="submit" value="Filter" />
-    </p>
-</form>
+
 <table class="table">
     <tbody style="vertical-align:bottom">
 @foreach (var item in Model.Good) {
@@ -42,9 +48,12 @@
                </a>
              
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"> <a asp-page="./Edit" asp-route-id="@item.Id">Изменить</a></li>
+                        @if ((Goods.IndexModel.currentUser != null && Goods.IndexModel.currentUser.Email != null) && Goods.IndexModel.currentUser.Isadmin == true)
+                        {
+                            <li class="list-group-item"> <a asp-page="./Edit" asp-route-id="@item.Id">Изменить</a></li>
+                            <li class="list-group-item"> <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a></li>
+                        }
                         <li class="list-group-item"> <a asp-page="./Details" asp-route-id="@item.Id">Подробнее</a></li>
-                        <li class="list-group-item"> <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a></li>
                     </ul>
             </div>
         </tr>

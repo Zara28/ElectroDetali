@@ -11,11 +11,14 @@ namespace ElectroDetali.Pages.Goods
 {
     public class IndexModel : PageModel
     {
+        public static Models.User currentUser;
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public IndexModel(ElectroDetali.Models.ElectroDetaliContext context)
+        public IndexModel(ElectroDetali.Models.ElectroDetaliContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public IList<Good> Good { get;set; } = default!;
@@ -24,6 +27,12 @@ namespace ElectroDetali.Pages.Goods
 
         public async Task OnGetAsync(int? id)
         {
+            var session = _httpContextAccessor.HttpContext.Session;
+            var random = new Random(1000000);
+            if (session == null)
+            {
+                session.SetString("session", random.Next().ToString());
+            }
             if (_context.Goods != null)
             {
                 if(id == null)

@@ -19,6 +19,8 @@ public partial class User
 
     public bool? Isapp { get; set; }
 
+    public bool? Isadmin { get; set; }
+
     public virtual ICollection<Buy> Buys { get; set; } = new List<Buy>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();

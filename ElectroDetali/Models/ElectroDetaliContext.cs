@@ -150,6 +150,7 @@ public partial class ElectroDetaliContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasColumnName("email");
+            entity.Property(e => e.Isadmin).HasColumnName("isadmin");
             entity.Property(e => e.Isapp).HasColumnName("isapp");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
