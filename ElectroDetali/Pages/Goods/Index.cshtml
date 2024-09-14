@@ -20,9 +20,14 @@
                 </div>
             </div>
         }
-
     }
 </div>
+<form>
+    <p>
+        Поиск: <input type="text" asp-for="SearchString" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
 <table class="table">
     <tbody style="vertical-align:bottom">
 @foreach (var item in Model.Good) {

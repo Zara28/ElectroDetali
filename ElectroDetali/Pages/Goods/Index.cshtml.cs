@@ -19,16 +19,8 @@ namespace ElectroDetali.Pages.Goods
         }
 
         public IList<Good> Good { get;set; } = default!;
-
-        //public async Task OnGetAsync()
-        //{
-        //    if (_context.Goods != null)
-        //    {
-        //        Good = await _context.Goods
-        //        .Include(g => g.Category).ToListAsync();
-        //    }
-        //    ViewData["Category"] = _context.Categories.ToList();
-        //}
+        [BindProperty(SupportsGet = true)]
+        public string? SearchString { get; set; }
 
         public async Task OnGetAsync(int? id)
         {
@@ -41,6 +33,11 @@ namespace ElectroDetali.Pages.Goods
                 }
                 else Good = await _context.Goods
                 .Include(g => g.Category).Where(c => c.Categoryid == id).ToListAsync();
+
+                if(!String.IsNullOrEmpty(SearchString))
+                {
+                    Good = Good.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
+                }
             }
             ViewData["Category"] = _context.Categories.ToList();
         }
