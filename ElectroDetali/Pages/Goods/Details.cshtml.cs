@@ -18,7 +18,7 @@ namespace ElectroDetali.Pages.Goods
             _context = context;
         }
 
-      public Good Good { get; set; } = default!; 
+        public Good Good { get; set; } 
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -27,7 +27,9 @@ namespace ElectroDetali.Pages.Goods
                 return NotFound();
             }
 
-            var good = await _context.Goods.Include(g => g.Reviews).FirstOrDefaultAsync(m => m.Id == id);
+            var good = await _context.Goods.Include(g => g.Reviews).
+                Include(g => g.Category).
+                FirstOrDefaultAsync(m => m.Id == id);
             if (good == null)
             {
                 return NotFound();
@@ -38,18 +40,24 @@ namespace ElectroDetali.Pages.Goods
             }
 
             ViewData["Review"] = Good.Reviews;
+            ViewData["GoodId"] = Good.Id;
 
             return Page();
         }
 
-        public void AddReview(IFormCollection form)
+        public IActionResult OnPost(IFormCollection form)
         {
+            var id = form["id"];
+            var text = form["review"];
             var review = new Review
             {
-
+                Goodid = Convert.ToInt32(id),
+                Value = text
             };
             _context.Reviews.Add(review);
             _context.SaveChanges();
+            return Redirect($"/Goods/Details?id={id}");
         }
     }
+
 }

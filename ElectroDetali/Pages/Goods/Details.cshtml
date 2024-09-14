@@ -6,8 +6,6 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
 <div>
     <div class="card mb-3" style="max-width: 540px;">
         <div class="row no-gutters">
@@ -19,7 +17,7 @@
                     <h5 class="card-title"> @Html.ValueFor(model => model.Good.Name)</h5>
                     <p class="card-text"> @Html.ValueFor(model => model.Good.Price)</p>
                     <p class="card-text"> @Html.ValueFor(model => model.Good.Description)</p>
-                    <p class="card-text"><small class="text-muted"> @Html.ValueFor(model => model.Good.Category.Name)</small></p>
+                    <p class="card-text"> <a href="./Index?id=@Html.ValueFor(model => model.Good.Category.Id)">@Html.ValueFor(model => model.Good.Category.Name)</a></p>
                 </div>
             </div>
         </div>
@@ -32,49 +30,18 @@
         <ul class="list-group list-group-flush">
             @foreach (var review in (List<Review>)ViewData["Review"])
             {
-                <li class="list-group-item">@(@review.User.Name ?? review.User.Email): @review.Value</li>
+                <li class="list-group-item">@(@review.User == null ? "Аноним" : (review.User.Name ?? review.User.Email)): @review.Value</li>
             }
-            <form>
-                <div class="form-group">
+            <form method="post" id="reviewForm">
+                <div class="form-group" style="width:70%">
                     <label for="review">Оставить отзыв</label>
-                    <textarea class="form-control" id="review" rows="3"></textarea>
-                    <button type="submit" class="btn btn-primary" asp-action="AddReview">Отправить</button>
+                    <textarea class="form-control" name="review" rows="3"></textarea>
+                    <input name="id" value=@ViewData["GoodId"] style="visibility:hidden"></input>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
                 </div>
             </form>
         </ul>
     </div>
-    @* <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Good.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Good.Description)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Price)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Good.Price)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Image)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Good.Image)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Category)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Good.Category.Id)
-        </dd>
-    </dl> *@
 </div>
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.Good?.Id">Edit</a> |
