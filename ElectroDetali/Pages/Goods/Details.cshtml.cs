@@ -41,11 +41,12 @@ namespace ElectroDetali.Pages.Goods
 
             ViewData["Review"] = Good.Reviews;
             ViewData["GoodId"] = Good.Id;
+            ViewData["Pick"] = _context.PickUpPoints.ToList();
 
             return Page();
         }
 
-        public IActionResult OnPost(IFormCollection form)
+        public IActionResult OnPostAddReview(IFormCollection form)
         {
             var id = form["id"];
             var text = form["review"];
@@ -55,6 +56,24 @@ namespace ElectroDetali.Pages.Goods
                 Value = text
             };
             _context.Reviews.Add(review);
+            _context.SaveChanges();
+            return Redirect($"/Goods/Details?id={id}");
+        }
+
+        public IActionResult OnPostCreateBuy(IFormCollection form)
+        {
+            var id = form["id"];
+            var pick = form["selector"];
+            var dateAdd = _context.PickUpPoints.First(f => f.Id == Convert.ToInt32(pick));
+            var buy = new Buy
+            {
+                Goodid=Convert.ToInt32(id),
+                Pointid=Convert.ToInt32(pick),
+                Datedelivery = DateTime.Now.Date.AddDays((double)dateAdd.Time),
+                Datecreate = DateTime.Now.Date,
+                Isbasket = true
+            };
+            _context.Buys.Add(buy);
             _context.SaveChanges();
             return Redirect($"/Goods/Details?id={id}");
         }

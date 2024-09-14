@@ -4,43 +4,81 @@
 
 @{
     ViewData["Title"] = "Details";
+    string Date = "";
 }
 
 <div>
-    <div class="card mb-3" style="max-width: 540px;">
-        <div class="row no-gutters">
-            <div class="col-md-4">
-                <img src="@Html.ValueFor(model => model.Good.Image)" class="card-img" alt="...">
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title"> @Html.ValueFor(model => model.Good.Name)</h5>
-                    <p class="card-text"> @Html.ValueFor(model => model.Good.Price)</p>
-                    <p class="card-text"> @Html.ValueFor(model => model.Good.Description)</p>
-                    <p class="card-text"> <a href="./Index?id=@Html.ValueFor(model => model.Good.Category.Id)">@Html.ValueFor(model => model.Good.Category.Name)</a></p>
+    <div class="row">
+            <div class="card mb-3 col-sm-6">
+            <div class="row no-gutters">
+                <div class="col-md-4">
+                    <img src="@Html.ValueFor(model => model.Good.Image)" class="card-img" alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title"> @Html.ValueFor(model => model.Good.Name)</h5>
+                        <p class="card-text"> @Html.ValueFor(model => model.Good.Price)</p>
+                        <p class="card-text"> @Html.ValueFor(model => model.Good.Description)</p>
+                        <p class="card-text"> <a href="./Index?id=@Html.ValueFor(model => model.Good.Category.Id)">@Html.ValueFor(model => model.Good.Category.Name)</a></p>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="col-sm-6">
+            <form method="post" name="CreateBuy">
+                <h2>Заказать</h2>
+                @if (ViewData["Pick"] != null)
+                {
+                    <select class="form-select" aria-label="Пункты выдачи" name="selector" id="selector" onchange="run()">
+                        <option selected>Выберите пункт выдачи</option>
+                        @foreach (var item in (List<PickUpPoint>)ViewData["Pick"])
+                        {
+                            <option value="@item.Id">@item.Adress</option>
+                        }
+                    </select>
+                    <input name="id" value=@ViewData["GoodId"] style="visibility:hidden"></input>
+                    <p>Будет в пункте выдачи <label name="labeldata" id="labeldata"></label></p>
+                    <button type="submit" class="btn btn-primary" asp-page-handler="CreateBuy">Добавить в корзину</button>
+                }
+               
+            </form>
+        </div>
     </div>
+    
+
+    <script>
+        function run() {
+            var date = new Date();
+
+            const add = Number(document.getElementById("selector").value);
+            date.setDate(date.getDate() + add);
+            
+            document.getElementById("labeldata").innerHTML = date.toLocaleDateString();
+        }
+    </script>
 
     <div class="card" style="width: 18rem;">
         <div class="card-header">
             Отзывы
         </div>
-        <ul class="list-group list-group-flush">
-            @foreach (var review in (List<Review>)ViewData["Review"])
-            {
-                <li class="list-group-item">@(@review.User == null ? "Аноним" : (review.User.Name ?? review.User.Email)): @review.Value</li>
-            }
-            <form method="post" id="reviewForm">
-                <div class="form-group" style="width:70%">
-                    <label for="review">Оставить отзыв</label>
-                    <textarea class="form-control" name="review" rows="3"></textarea>
-                    <input name="id" value=@ViewData["GoodId"] style="visibility:hidden"></input>
-                    <button type="submit" class="btn btn-primary">Отправить</button>
-                </div>
-            </form>
-        </ul>
+        @if (ViewData["Review"] != null)
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var review in (List<Review>)ViewData["Review"])
+                {
+                    <li class="list-group-item">@(@review.User == null ? "Аноним" : (review.User.Name ?? review.User.Email)): @review.Value</li>
+                }
+                <form method="post" id="reviewForm" asp-action="AddReview" name="AddReview">
+                    <div class="form-group" style="width:70%">
+                        <label for="review">Оставить отзыв</label>
+                        <textarea class="form-control" name="review" rows="3"></textarea>
+                        <input name="id" value=@ViewData["GoodId"] style="visibility:hidden"></input>
+                        <button type="submit" class="btn btn-primary" asp-page-handler="AddReview">Отправить</button>
+                    </div>
+                </form>
+            </ul>
+        }
+        
     </div>
 </div>
 <div>
