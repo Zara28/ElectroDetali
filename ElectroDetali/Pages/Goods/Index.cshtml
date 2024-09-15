@@ -10,13 +10,47 @@
         <a asp-page="Create">Добавить новый товар</a>
     </p>
 }
+<div style="display:inline-block; width:max-content">
+    <form>
+        <p>
+            <p>Поиск:</p>
+        <input type="text" asp-for="SearchString" />
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </p>
+    </form>
+</div>
 
-<form>
-    <p>
-        Поиск: <input type="text" asp-for="SearchString" />
-        <input type="submit" value="Поиск" />
-    </p>
-</form>
+
+<div style="display:inline-block ; width:max-content">
+    
+    <form>
+        <div style="display:inline-block">
+            <p>Количество товаров на странице:</p> 
+            <select class="form-select" asp-for="PageSize">
+                <option value="5">5</option>
+                <option value="15" selected>15</option>
+                <option value="25">25</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="display:inline-block">Применить</button>
+    </form>
+
+</div>
+
+<div style="display:inline-block ; width:max-content">
+    <form>
+        <div style="display:inline-block">
+            <p>Сортировать: </p>
+        <select class="form-select" asp-for="SortingValue">
+            <option value="ASC">По возрастанию цены</option>
+            <option value="DESC">По убыванию цены</option>
+            <option value="NONE" selected>По умолчанию</option>
+        </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Применить</button>
+    </form>
+
+</div>
 
 <div>
     @if (ViewData["Category"] is List<Models.Category>)
@@ -36,7 +70,8 @@
 
 <table class="table">
     <tbody style="vertical-align:bottom">
-@foreach (var item in Model.Good) {
+     @foreach (var item in Model.Good) 
+    {
         <tr>
            <div class="card" style="width: 18rem;">
                     <a asp-page="./Details" asp-route-id="@item.Id">
@@ -45,18 +80,34 @@
                             <h2 class="card-text">@item.Name @item.Price Р</h2>
                             <p class="card-text">@item.Description</p>
                         </div>
-               </a>
-             
+                     </a>
+
                     <ul class="list-group list-group-flush">
                         @if ((Goods.IndexModel.currentUser != null && Goods.IndexModel.currentUser.Email != null) && Goods.IndexModel.currentUser.Isadmin == true)
                         {
                             <li class="list-group-item"> <a asp-page="./Edit" asp-route-id="@item.Id">Изменить</a></li>
                             <li class="list-group-item"> <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a></li>
                         }
-                        <li class="list-group-item"> <a asp-page="./Details" asp-route-id="@item.Id">Подробнее</a></li>
                     </ul>
             </div>
         </tr>
 }
+
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.Good.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Good.HasNextPage ? "disabled" : "";
+}
+
+<a asp-page="./Index"
+   asp-route-pageIndex="@(Model.Good.PageIndex - 1)"
+   class="btn btn-primary @prevDisabled">
+    Предыдущая
+</a>
+<a asp-page="./Index"
+   asp-route-pageIndex="@(Model.Good.PageIndex + 1)"
+   class="btn btn-primary @nextDisabled">
+    Следующая
+</a>

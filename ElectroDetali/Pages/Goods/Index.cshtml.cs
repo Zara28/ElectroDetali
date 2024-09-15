@@ -21,13 +21,19 @@ namespace ElectroDetali.Pages.Goods
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public IList<Good> Good { get;set; } = default!;
+        public PaginatedList<Good> Good { get; set; }
+
         [BindProperty(SupportsGet = true)]
         public string? SearchString { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string? SortingValue { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 15;
 
-        public async Task OnGetAsync(int? id)
+        public async Task OnGetAsync(int? id, int? pageIndex)
         {
             var session = _httpContextAccessor.HttpContext.Session;
+            var goods = new List<Good>();
             var random = new Random(1000000);
             if (session == null)
             {
@@ -37,16 +43,32 @@ namespace ElectroDetali.Pages.Goods
             {
                 if(id == null)
                 {
-                    Good = await _context.Goods
+                    goods = await _context.Goods
                         .Include(g => g.Category).ToListAsync();
                 }
-                else Good = await _context.Goods
+                else goods = await _context.Goods
                 .Include(g => g.Category).Where(c => c.Categoryid == id).ToListAsync();
 
                 if(!String.IsNullOrEmpty(SearchString))
                 {
-                    Good = Good.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
+                    goods = goods.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
                 }
+                else
+                {
+                    pageIndex = 1;
+                }
+                if (!String.IsNullOrEmpty(SortingValue))
+                {
+                    goods = SortingValue switch
+                    {
+                        "ASC" => goods.OrderBy(g => g.Price).ToList(),
+                        "DESC" => goods.OrderByDescending(g => g.Price).ToList(),
+                        _ => goods
+                    }; 
+                }
+
+                Good = PaginatedList<Good>.CreateAsync(
+                goods.ToList(), pageIndex ?? 1, PageSize);
             }
             ViewData["Category"] = _context.Categories.ToList();
         }
