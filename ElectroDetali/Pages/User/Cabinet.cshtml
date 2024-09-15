@@ -1,0 +1,68 @@
+﻿@page
+@model ElectroDetali.Pages.User.CabinetModel
+@{
+    ViewData["Title"] = "Cabinet";
+}
+
+<h1>Личный кабинет</h1>
+@if (Goods.IndexModel.currentUser == null || Goods.IndexModel.currentUser.Password == null)
+{
+    <h2>Авторизуйтесь, чтобы просматривать историю заказов</h2>
+}
+else
+{
+    <form method="post" enctype="multipart/form-data" name="Save">
+        <button type="submit" asp-page-handler="Save">Скачать историю заказов</button>
+
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Дата заказа
+                </th>
+                <th>
+                    Статус доставки
+                </th>
+                <th>
+                    Товар
+                </th>
+                <th>
+                    Стоимость
+                </th>
+                <th>
+                    Пункт выдачи
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Buy)
+            {
+                <tr>
+                    <td>
+                        @item.Datecreate.Value.ToShortDateString()
+                    </td>
+                    <td>
+                        @if(item.Datedelivery > DateTime.Now)
+                        {
+                            <p>Ожидается к доставке: @item.Datedelivery.Value.ToShortDateString()</p>
+                        } else
+                        {
+                            <p>Доставлен</p>
+                        }
+                    </td>
+                    <td>
+                        @item.Good.Name
+                    </td>
+                    <td>
+                        @item.Good.Price
+                    </td>
+                    <td>
+                        @item.Point.Adress
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
