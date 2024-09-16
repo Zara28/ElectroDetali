@@ -1,4 +1,5 @@
 using ElectroDetali.Models;
+using ElectroDetali.Models.HelperModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 

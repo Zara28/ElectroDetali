@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ElectroDetali.Models;
+using ElectroDetali.Models.HelperModels;
 
 namespace ElectroDetali.Pages.Goods
 {
-    public class CreateModel : Page
+    public class CreateModel : Models.HelperModels.Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
 

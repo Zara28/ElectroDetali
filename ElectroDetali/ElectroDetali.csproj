@@ -10,6 +10,7 @@
     <PackageReference Include="bootstrap" Version="5.3.3" />
     <PackageReference Include="FreeSpire.XLS" Version="14.2.0" />
     <PackageReference Include="MailKit" Version="4.7.1.1" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.33" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.33" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.33">
@@ -18,10 +19,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.17" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>

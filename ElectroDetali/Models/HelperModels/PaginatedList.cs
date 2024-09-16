@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ElectroDetali.Pages
+namespace ElectroDetali.Models.HelperModels
 {
     public class PaginatedList<T> : List<T>
     {
@@ -12,7 +12,7 @@ namespace ElectroDetali.Pages
             PageIndex = pageIndex;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 
-            this.AddRange(items);
+            AddRange(items);
         }
 
         public bool HasPreviousPage => PageIndex > 1;

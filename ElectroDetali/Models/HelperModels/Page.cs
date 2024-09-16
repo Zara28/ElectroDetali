@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ElectroDetali
+namespace ElectroDetali.Models.HelperModels
 {
     public class Page : PageModel
     {

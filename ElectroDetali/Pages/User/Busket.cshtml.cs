@@ -6,6 +6,7 @@ using MimeKit;
 using NuGet.Protocol.Plugins;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using System.Xml.Linq;
+using ElectroDetali.Models.HelperModels;
 
 namespace ElectroDetali.Pages.User
 {
