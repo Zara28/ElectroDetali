@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ElectroDetali.Pages.User
 {
-    public class LoginModel : Page
+    public class LoginModel : Models.HelperModels.Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
         public LoginModel(ElectroDetaliContext context)

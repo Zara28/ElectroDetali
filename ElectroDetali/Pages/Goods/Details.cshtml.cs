@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ElectroDetali.Models;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
+using ElectroDetali.Models.HandlerModels.Queries;
+using ElectroDetali.Models.HandlerModels.Commands;
 
 namespace ElectroDetali.Pages.Goods
 {
     public class DetailsModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public DetailsModel(ElectroDetali.Models.ElectroDetaliContext context, IHttpContextAccessor httpContextAccessor)
+        public DetailsModel(IMediator mediator, IHttpContextAccessor httpContextAccessor)
         {
-            _context = context;
+            _mediator = mediator;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -26,26 +29,29 @@ namespace ElectroDetali.Pages.Goods
         {
             try
             {
-                if (id == null || _context.Goods == null)
+                if (id == null)
                 {
                     return NotFound();
                 }
 
-                var good = await _context.Goods.Include(g => g.Reviews).
-                    Include(g => g.Category).
-                    FirstOrDefaultAsync(m => m.Id == id);
-                if (good == null)
+                var result = await _mediator.Send(new GetGoodQueryModel
+                {
+                    Id = id
+                });
+
+                if (result.ErrorMessage != null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    Good = good;
+                    Good = result.Value[0];
                 }
 
                 ViewData["Review"] = Good.Reviews;
                 ViewData["GoodId"] = Good.Id;
-                ViewData["Pick"] = _context.PickUpPoints.ToList();
+                var picks = await _mediator.Send(new GetPickQueryModel());
+                ViewData["Pick"] = picks.Value;
 
                 return Page();
             }
@@ -57,7 +63,7 @@ namespace ElectroDetali.Pages.Goods
             
         }
 
-        public IActionResult OnPostAddReview(IFormCollection form)
+        public async Task<IActionResult> OnPostAddReviewAsync(IFormCollection form)
         {
             try
             {
@@ -66,22 +72,31 @@ namespace ElectroDetali.Pages.Goods
 
                 if (Goods.IndexModel.currentUser == null)
                 {
-                    var user = new Models.User
+
+                    var result = await _mediator.Send(new CreateUserCommandModel
                     {
                         Name = _httpContextAccessor.HttpContext.Session.Id
-                    };
-                    _context.Users.Add(user);
-                    _context.SaveChanges();
-                    Goods.IndexModel.currentUser = user;
+                    });
+
+                    if (result.ErrorMessage != null) {
+                        StatusMessage = result.ErrorMessage;
+                    }
+
+                    Goods.IndexModel.currentUser = result.Value;
                 }
 
-                var review = new Review
+                var resutl = await _mediator.Send( new CreateReviewCommandModel
                 {
-                    Goodid = Convert.ToInt32(id),
-                    Value = text
-                };
-                _context.Reviews.Add(review);
-                _context.SaveChanges();
+                    GoodId = Convert.ToInt32(id),
+                    Text = text,
+                    UserId = Goods.IndexModel.currentUser.Id
+                });
+
+                if (resutl.ErrorMessage != null)
+                {
+                    StatusMessage = resutl.ErrorMessage;
+                }
+
                 return Redirect($"/Goods/Details?id={id}");
             }
             catch (Exception ex)
@@ -92,36 +107,48 @@ namespace ElectroDetali.Pages.Goods
             }
         }
 
-        public IActionResult OnPostCreateBuy(IFormCollection form)
+        public async Task<IActionResult> OnPostCreateBuy(IFormCollection form)
         {
             try
             {
                 var id = form["id"];
                 var pick = form["selector"];
-                var dateAdd = _context.PickUpPoints.First(f => f.Id == Convert.ToInt32(pick));
+                    
+                var piksRes = await _mediator.Send(new GetPickQueryModel
+                {
+                    Id = Convert.ToInt32(pick)
+                });
+                var dateAdd = piksRes.Value[0];
 
                 if (Goods.IndexModel.currentUser == null)
                 {
-                    var user = new Models.User
+                    var result = await _mediator.Send(new CreateUserCommandModel
                     {
                         Name = _httpContextAccessor.HttpContext.Session.Id
-                    };
-                    _context.Users.Add(user);
-                    _context.SaveChanges();
-                    Goods.IndexModel.currentUser = user;
+                    });
+
+                    if (result.ErrorMessage != null)
+                    {
+                        StatusMessage = result.ErrorMessage;
+                    }
+
+                    Goods.IndexModel.currentUser = result.Value;
                 }
 
-                var buy = new Buy
+                var buy = await _mediator.Send(new CreateBusketRowCommandModel
                 {
                     Goodid = Convert.ToInt32(id),
                     Pointid = Convert.ToInt32(pick),
                     Datedelivery = DateTime.Now.Date.AddDays((double)dateAdd.Time),
                     Datecreate = DateTime.Now.Date,
-                    Isbasket = true,
                     Userid = Goods.IndexModel.currentUser.Id,
-                };
-                _context.Buys.Add(buy);
-                _context.SaveChanges();
+                });
+
+                if (buy.ErrorMessage != null)
+                {
+                    StatusMessage = buy.ErrorMessage;
+                }
+
                 return Redirect($"/Goods/Details?id={id}");
             }
             catch (Exception ex)

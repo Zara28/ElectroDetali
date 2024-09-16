@@ -3,7 +3,7 @@ using MediatR;
 
 namespace ElectroDetali.Models.HandlerModels.Commands
 {
-    public class CreateUserCommandModel : IRequest<ResponseModel<string>>
+    public class CreateUserCommandModel : IRequest<ResponseModel<User>>
     {
         public string Name { get; set; }
         public string Email { get; set; }

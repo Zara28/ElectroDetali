@@ -8,16 +8,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ElectroDetali.Models;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
+using ElectroDetali.Models.HandlerModels.Queries;
+using ElectroDetali.Handlers.Queries;
+using ElectroDetali.Models.HandlerModels.Commands;
 
 namespace ElectroDetali.Pages.Goods
 {
     public class EditModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
 
-        public EditModel(ElectroDetali.Models.ElectroDetaliContext context)
+        public EditModel(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [BindProperty]
@@ -27,18 +31,27 @@ namespace ElectroDetali.Pages.Goods
         {
             try
             {
-                if (id == null || _context.Goods == null)
+                if (id == null)
                 {
                     return NotFound();
                 }
 
-                var good = await _context.Goods.FirstOrDefaultAsync(m => m.Id == id);
+                var result = await _mediator.Send(new GetGoodQueryModel()
+                {
+                    Id = id
+                });
+
+                var good = result.Value[0];
                 if (good == null)
                 {
+                    StatusMessage = result.ErrorMessage;
                     return NotFound();
                 }
                 Good = good;
-                ViewData["Categoryid"] = new SelectList(_context.Categories, "Id", "Name");
+
+                var categories = await _mediator.Send(new GetCategoriesQueryModel());
+
+                ViewData["Categoryid"] = new SelectList(categories.Value, "Id", "Name");
                 return Page();
             }
             catch (Exception ex)
@@ -58,24 +71,21 @@ namespace ElectroDetali.Pages.Goods
                     return Page();
                 }
 
-                _context.Attach(Good).State = EntityState.Modified;
-
-                try
+                var result = await _mediator.Send(new UpdateGoodCommandModel
                 {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GoodExists(Good.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                    Id = Good.Id,
+                    Name = Good.Name,
+                    Description = Good.Description,
+                    CategoryId = (int)Good.Categoryid,
+                    Price = Good.Price,
+                    Image = Good.Image,
+                });
 
+
+                if(result.ErrorMessage != null)
+                {
+                    StatusMessage = result.ErrorMessage;
+                }
                 return RedirectToPage("./Index");
             }
             catch (Exception ex)
@@ -84,11 +94,6 @@ namespace ElectroDetali.Pages.Goods
                 return Page();
             }
             
-        }
-
-        private bool GoodExists(int id)
-        {
-          return (_context.Goods?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

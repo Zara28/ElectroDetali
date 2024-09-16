@@ -11,7 +11,7 @@ using ElectroDetali.Models.HelperModels;
 
 namespace ElectroDetali.Pages.User
 {
-    public class CabinetModel : Page
+    public class CabinetModel : Models.HelperModels.Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
 

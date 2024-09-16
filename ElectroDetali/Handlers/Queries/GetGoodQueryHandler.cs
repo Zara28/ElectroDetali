@@ -31,6 +31,12 @@ namespace ElectroDetali.Handlers.Queries
                 {
                     goods.Add(await _context.Goods.FirstAsync(g => g.Id == request.Id));
                 }
+
+                if(request.CategoryId != null)
+                {
+                    goods = goods.Where(g => g.Categoryid == request.CategoryId).ToList();
+                }
+
                 return new()
                 {
                     Value = goods

@@ -7,18 +7,21 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ElectroDetali.Models;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
+using NuGet.Versioning;
+using ElectroDetali.Models.HandlerModels.Queries;
 
 namespace ElectroDetali.Pages.Goods
 {
     public class IndexModel : Models.HelperModels.Page
     {
         public static Models.User currentUser;
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public IndexModel(ElectroDetali.Models.ElectroDetaliContext context, IHttpContextAccessor httpContextAccessor)
+        public IndexModel(IMediator mediator, IHttpContextAccessor httpContextAccessor)
         {
-            _context = context;
+            _mediator = mediator;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -43,38 +46,41 @@ namespace ElectroDetali.Pages.Goods
                 {
                     session.SetString("session", random.Next().ToString());
                 }
-                if (_context.Goods != null)
+
+                var model = new GetGoodQueryModel();
+                if (Id != null)
                 {
-                    if (Id == null)
-                    {
-                        goods = await _context.Goods
-                            .Include(g => g.Category).ToListAsync();
-                    }
-                    else goods = await _context.Goods
-                    .Include(g => g.Category).Where(c => c.Categoryid == Id).ToListAsync();
-
-                    if (!String.IsNullOrEmpty(SearchString))
-                    {
-                        goods = goods.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
-                    }
-                    else
-                    {
-                        pageIndex = 1;
-                    }
-                    if (!String.IsNullOrEmpty(SortingValue))
-                    {
-                        goods = SortingValue switch
-                        {
-                            "ASC" => goods.OrderBy(g => g.Price).ToList(),
-                            "DESC" => goods.OrderByDescending(g => g.Price).ToList(),
-                            _ => goods
-                        };
-                    }
-
-                    Good = PaginatedList<Good>.CreateAsync(
-                    goods.ToList(), pageIndex ?? 1, PageSize);
+                    model.CategoryId = Id;
                 }
-                ViewData["Category"] = _context.Categories.ToList();
+
+                var result = await _mediator.Send(model);
+
+                goods = result.Value;
+
+                if (!String.IsNullOrEmpty(SearchString))
+                {
+                    goods = goods.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
+                }
+                else
+                {
+                    pageIndex = 1;
+                }
+                if (!String.IsNullOrEmpty(SortingValue))
+                {
+                    goods = SortingValue switch
+                    {
+                        "ASC" => goods.OrderBy(g => g.Price).ToList(),
+                        "DESC" => goods.OrderByDescending(g => g.Price).ToList(),
+                        _ => goods
+                    };
+                }
+
+                Good = PaginatedList<Good>.CreateAsync(
+                goods.ToList(), pageIndex ?? 1, PageSize);
+
+                var resCat = await _mediator.Send(new GetCategoriesQueryModel());
+
+                ViewData["Category"] = resCat.Value;
             }
             catch (Exception ex)
             {

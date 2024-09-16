@@ -7,7 +7,7 @@ using MimeKit;
 
 namespace ElectroDetali.Pages.User
 {
-    public class RegisterModel : Page
+    public class RegisterModel : Models.HelperModels.Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
         private readonly SmtpClient smtpClient;

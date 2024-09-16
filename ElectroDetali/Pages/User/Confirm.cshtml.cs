@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ElectroDetali.Pages.User
 {
-    public class ConformModel : Page
+    public class ConformModel : Models.HelperModels.Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
         public ConformModel(ElectroDetaliContext context)

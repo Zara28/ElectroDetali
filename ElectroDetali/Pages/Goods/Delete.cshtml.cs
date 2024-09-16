@@ -1,45 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using ElectroDetali.Models;
-using ElectroDetali.Models.HelperModels;
+using MediatR;
+using ElectroDetali.Models.HandlerModels.Queries;
+using ElectroDetali.Models.HandlerModels.Commands;
 
 namespace ElectroDetali.Pages.Goods
 {
     public class DeleteModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
 
-        public DeleteModel(ElectroDetali.Models.ElectroDetaliContext context)
+        public DeleteModel(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [BindProperty]
-      public Good Good { get; set; } = default!;
+        public Good Good { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             try
             {
-                if (id == null || _context.Goods == null)
+                if (id == null)
                 {
                     return NotFound();
                 }
 
-                var good = await _context.Goods.FirstOrDefaultAsync(m => m.Id == id);
+                var good = await _mediator.Send(new GetGoodQueryModel
+                {
+                    Id = id
+                });
 
-                if (good == null)
+                if (good.Value == null || good.ErrorMessage != null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    Good = good;
+                    Good = good.Value[0];
                 }
                 return Page();
             }
@@ -55,17 +54,19 @@ namespace ElectroDetali.Pages.Goods
         {
             try
             {
-                if (id == null || _context.Goods == null)
+                if (id == null)
                 {
                     return NotFound();
                 }
-                var good = await _context.Goods.FindAsync(id);
 
-                if (good != null)
+                var result = await _mediator.Send(new DeleteGoodCommandModel
                 {
-                    Good = good;
-                    _context.Goods.Remove(Good);
-                    await _context.SaveChangesAsync();
+                    Id = (int)id
+                });
+
+                if (!String.IsNullOrEmpty(result.ErrorMessage))
+                {
+                    StatusMessage = result.ErrorMessage;
                 }
 
                 return RedirectToPage("./Index");

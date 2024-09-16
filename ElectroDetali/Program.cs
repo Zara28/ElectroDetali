@@ -1,4 +1,5 @@
 using ElectroDetali.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
 }); ;
 
 builder.Services.AddScoped<ElectroDetaliContext>();
+builder.Services.AddLogging(logging => {  logging.AddConsole(); });
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(s => s.IdleTimeout = TimeSpan.FromMinutes(30));
 

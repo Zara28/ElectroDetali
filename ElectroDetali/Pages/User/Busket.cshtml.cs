@@ -10,7 +10,7 @@ using ElectroDetali.Models.HelperModels;
 
 namespace ElectroDetali.Pages.User
 {
-    public class BusketModel : Page
+    public class BusketModel : Models.HelperModels.Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
         private readonly SmtpClient smtpClient;

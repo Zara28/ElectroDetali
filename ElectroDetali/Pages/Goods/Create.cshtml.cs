@@ -7,23 +7,27 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ElectroDetali.Models;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
+using ElectroDetali.Models.HandlerModels.Queries;
+using ElectroDetali.Models.HandlerModels.Commands;
 
 namespace ElectroDetali.Pages.Goods
 {
     public class CreateModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
 
-        public CreateModel(ElectroDetali.Models.ElectroDetaliContext context)
+        public CreateModel(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             try
             {
-                ViewData["Categoryid"] = new SelectList(_context.Categories, "Id", "Name");
+                var categories = await _mediator.Send(new GetCategoriesQueryModel());
+                ViewData["Categoryid"] = new SelectList(categories.Value, "Id", "Name");
                 return Page();
             }
             catch (Exception ex)
@@ -41,13 +45,24 @@ namespace ElectroDetali.Pages.Goods
         {
             try
             {
-                if (!ModelState.IsValid || _context.Goods == null || Good == null)
+                if (!ModelState.IsValid || Good == null)
                 {
                     return Page();
                 }
 
-                _context.Goods.Add(Good);
-                await _context.SaveChangesAsync();
+                var result = await _mediator.Send(new CreateGoodCommandModel
+                {
+                    Name = Good.Name,
+                    Description = Good.Description,
+                    Price = Good.Price,
+                    CategoryId = (int)Good.Categoryid,
+                    Image = Good.Image
+                });
+
+                if(!String.IsNullOrEmpty(result.ErrorMessage))
+                {
+                    StatusMessage = "Ошибка при добавлении товара:\r\n";
+                }
 
                 return RedirectToPage("./Index");
             }

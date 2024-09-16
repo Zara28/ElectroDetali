@@ -21,7 +21,13 @@ namespace ElectroDetali.Handlers.Queries
         {
             try
             {
-                List<PickUpPoint> points = await _context.PickUpPoints.ToListAsync();
+                List<PickUpPoint> points = new();
+                if (request.Id == null)
+                {
+                    points = await _context.PickUpPoints.ToListAsync();
+                }
+                else points.Add(await _context.PickUpPoints.FirstAsync(p => p.Id == request.Id));
+
                 return new()
                 {
                     Value = points
