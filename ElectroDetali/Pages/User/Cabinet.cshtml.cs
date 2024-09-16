@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ElectroDetali.Models;
-using Spire.Pdf;
-using Spire.Pdf.Tables;
-using System.Drawing;
+using Spire.Xls;
 
 namespace ElectroDetali.Pages.User
 {
@@ -58,25 +56,27 @@ namespace ElectroDetali.Pages.User
                                     b.Good.Price.ToString(),
                                     b.Point.Adress));
                 });
-            PdfDocument doc = new PdfDocument();
-            PdfTable table = new PdfTable();
+            Workbook book = new Workbook();
+            Worksheet sheet = book.Worksheets[0];
 
-            table.Columns.Add(new PdfColumn()
+            sheet.Range[$"A1"].Text = "Дата заказа";
+            sheet.Range[$"B1"].Text = "Статус заказа";
+            sheet.Range[$"C1"].Text = "Товар";
+            sheet.Range[$"D1"].Text = "Стоимость в рублях";
+            sheet.Range[$"E1"].Text = "Пункт выдачи";
+
+            for (int i = 2; i <= tableToUse.Count+1; i++)
             {
-                ColumnName = "1"
-            });
-            table.Columns.Add(new PdfColumn("2"));
-            table.Columns.Add(new PdfColumn("3"));
-            table.Columns.Add(new PdfColumn("4"));
-            table.Columns.Add(new PdfColumn("5"));
-            table.DataSource = tableToUse;
-            PdfPageBase tocPage = doc.Pages.Insert(0);
-            table.Draw(tocPage, new PointF(0, 30));
-            doc.SaveToFile("Report.pdf");
+                sheet.Range[$"A{i}"].Text = tableToUse[i - 2].Item1;
+                sheet.Range[$"B{i}"].Text = tableToUse[i - 2].Item2;
+                sheet.Range[$"C{i}"].Text = tableToUse[i - 2].Item3;
+                sheet.Range[$"D{i}"].Text = tableToUse[i - 2].Item4;
+                sheet.Range[$"E{i}"].Text = tableToUse[i - 2].Item5;
+            }
 
+            book.SaveToFile($"Report_{DateTime.Now.Date.ToShortDateString()}.xls");
 
-            return File(System.IO.File.ReadAllBytes("Report.pdf"), "application/octet-stream", "Report.pdf");
+            return File(System.IO.File.ReadAllBytes($"Report_{DateTime.Now.Date.ToShortDateString()}.xls"), "application/octet-stream", $"Report_{DateTime.Now.Date.ToShortDateString()}.xls");
         }
-
     }
 }
