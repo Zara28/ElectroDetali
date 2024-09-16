@@ -10,7 +10,7 @@ using ElectroDetali.Models;
 
 namespace ElectroDetali.Pages.Goods
 {
-    public class EditModel : PageModel
+    public class EditModel : Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
 
@@ -24,49 +24,65 @@ namespace ElectroDetali.Pages.Goods
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null || _context.Goods == null)
-            {
-                return NotFound();
-            }
-
-            var good =  await _context.Goods.FirstOrDefaultAsync(m => m.Id == id);
-            if (good == null)
-            {
-                return NotFound();
-            }
-            Good = good;
-           ViewData["Categoryid"] = new SelectList(_context.Categories, "Id", "Id");
-            return Page();
-        }
-
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Attach(Good).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GoodExists(Good.Id))
+                if (id == null || _context.Goods == null)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return RedirectToPage("./Index");
+                var good = await _context.Goods.FirstOrDefaultAsync(m => m.Id == id);
+                if (good == null)
+                {
+                    return NotFound();
+                }
+                Good = good;
+                ViewData["Categoryid"] = new SelectList(_context.Categories, "Id", "Name");
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Ошибка при получении товара:\r\n" + ex.Message;
+                return Page();
+            }
+            
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Page();
+                }
+
+                _context.Attach(Good).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!GoodExists(Good.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Ошибка при обновлении товара:\r\n" + ex.Message;
+                return Page();
+            }
+            
         }
 
         private bool GoodExists(int id)

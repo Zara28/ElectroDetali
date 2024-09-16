@@ -6,38 +6,39 @@
 }
 
 <h1>Удалить</h1>
-
-<h3>ВЫ уверены?</h3>
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
+<h3>Вы уверены?</h3>
 <div>
-    <h4>Good</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Name)
+            Название
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Good.Name)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Description)
+           Описание
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Good.Description)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Price)
+            Цена
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Good.Price)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Image)
+            Изображение
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Good.Image)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Good.Category)
+            Категория
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Good.Category.Id)
@@ -46,7 +47,19 @@
     
     <form method="post">
         <input type="hidden" asp-for="Good.Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
         <a asp-page="./Index">Вернуться к списку</a>
     </form>
 </div>
+@section Scripts {
+    <script>src = "https://cdn.jsdelivr.net/npm/sweetalert2@11.1.7/dist/sweetalert2.all.min.js" ></script>
+
+    <script>
+        $(document).ready(function () {
+            let msg = $('#StatusMessage').val();
+            if (msg.length > 0) {
+                swal.fire(msg);
+            }
+        }
+    </script>
+}

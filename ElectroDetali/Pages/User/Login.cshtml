@@ -2,14 +2,31 @@
 @model ElectroDetali.Pages.User.LoginModel
 @{
 }
+
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
 <form method="post">
     <div class="form-group">
         <label for="InputEmail">Почта</label>
-        <input type="email" class="form-control" name="InputEmail" id="InputEmail" aria-describedby="emailHelp" placeholder="Почта">
+        <input type="email" class="form-control" name="InputEmail" id="InputEmail" aria-describedby="emailHelp" placeholder="Почта" required>
     </div>
     <div class="form-group">
         <label for="InputPassword">Пароль</label>
-        <input type="password" class="form-control" name="InputPassword" id="InputPassword" placeholder="Пароль">
+        <input type="password" class="form-control" name="InputPassword" id="InputPassword" placeholder="Пароль" required>
     </div>
     <button type="submit" class="btn btn-primary">Войти</button>
 </form>
+
+@section Scripts {
+    <script>src = "https://cdn.jsdelivr.net/npm/sweetalert2@11.1.7/dist/sweetalert2.all.min.js" ></script>
+
+    <script>
+        $(document).ready(function () {
+            let msg = $('#StatusMessage').val();
+            if (msg.length > 0) {
+                swal.fire(msg);
+            }
+        }
+    </script>
+}

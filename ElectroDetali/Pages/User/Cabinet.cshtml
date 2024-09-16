@@ -3,7 +3,9 @@
 @{
     ViewData["Title"] = "Cabinet";
 }
-
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
 <h1>Личный кабинет</h1>
 @if (Goods.IndexModel.currentUser == null || Goods.IndexModel.currentUser.Password == null)
 {
@@ -72,3 +74,15 @@ else
     </table>
 }
 
+@section Scripts {
+<script> src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.7/dist/sweetalert2.all.min.js"></script>
+
+<script>
+   $(document).ready(function () {
+      let msg = $('#StatusMessage').val();
+      if(msg.length > 0) {
+          swal.fire(msg);
+      }
+   }
+</script>
+}

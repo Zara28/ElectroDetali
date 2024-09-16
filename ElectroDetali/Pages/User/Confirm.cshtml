@@ -2,12 +2,28 @@
 @model ElectroDetali.Pages.User.ConformModel
 @{
 }
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
 <h2>Подтвердите регистрацию</h2>
 <p>На вашу почту был отправлен код подтверждения, введите его, чтобы завершить регистрацию</p>
 <form method="post">
     <div class="form-group">
         <label for="Input">Код</label>
-        <input class="form-control" name="Input" id="Input" placeholder="Введите код">
+        <input class="form-control" name="Input" id="Input" placeholder="Введите код" required>
     </div>
     <button type="submit" class="btn btn-primary">Подтвердить</button>
 </form>
+
+@section Scripts {
+    <script>src = "https://cdn.jsdelivr.net/npm/sweetalert2@11.1.7/dist/sweetalert2.all.min.js" ></script>
+
+    <script>
+        $(document).ready(function () {
+            let msg = $('#StatusMessage').val();
+            if (msg.length > 0) {
+                swal.fire(msg);
+            }
+        }
+    </script>
+}

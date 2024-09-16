@@ -9,7 +9,7 @@ using ElectroDetali.Models;
 
 namespace ElectroDetali.Pages.Goods
 {
-    public class DeleteModel : PageModel
+    public class DeleteModel : Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
 
@@ -23,40 +23,58 @@ namespace ElectroDetali.Pages.Goods
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null || _context.Goods == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null || _context.Goods == null)
+                {
+                    return NotFound();
+                }
 
-            var good = await _context.Goods.FirstOrDefaultAsync(m => m.Id == id);
+                var good = await _context.Goods.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (good == null)
-            {
-                return NotFound();
+                if (good == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    Good = good;
+                }
+                return Page();
             }
-            else 
+            catch (Exception ex)
             {
-                Good = good;
+                StatusMessage = "Ошибка при получении товара:\r\n" + ex.Message;
+                return Page();
             }
-            return Page();
+            
         }
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
-            if (id == null || _context.Goods == null)
+            try
             {
-                return NotFound();
-            }
-            var good = await _context.Goods.FindAsync(id);
+                if (id == null || _context.Goods == null)
+                {
+                    return NotFound();
+                }
+                var good = await _context.Goods.FindAsync(id);
 
-            if (good != null)
+                if (good != null)
+                {
+                    Good = good;
+                    _context.Goods.Remove(Good);
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
             {
-                Good = good;
-                _context.Goods.Remove(Good);
-                await _context.SaveChangesAsync();
+                StatusMessage = "Ошибка при удалении товара:\r\n"+ex.Message;
+                return Page();
             }
-
-            return RedirectToPage("./Index");
+            
         }
     }
 }

@@ -6,7 +6,9 @@
     ViewData["Title"] = "Details";
     string Date = "";
 }
-
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
 <div>
     <div class="row">
             <div class="card mb-3 col-sm-6">
@@ -29,7 +31,7 @@
                 <h2>Заказать</h2>
                 @if (ViewData["Pick"] != null)
                 {
-                    <select class="form-select" aria-label="Пункты выдачи" name="selector" id="selector" onchange="run()">
+                    <select class="form-select" aria-label="Пункты выдачи" name="selector" id="selector" onchange="run()" required>
                         <option selected>Выберите пункт выдачи</option>
                         @foreach (var item in (List<PickUpPoint>)ViewData["Pick"])
                         {
@@ -71,7 +73,7 @@
                 <form method="post" id="reviewForm" asp-action="AddReview" name="AddReview">
                     <div class="form-group" style="width:70%">
                         <label for="review">Оставить отзыв</label>
-                        <textarea class="form-control" name="review" rows="3"></textarea>
+                        <textarea class="form-control" name="review" rows="3" required></textarea>
                         <input name="id" value=@ViewData["GoodId"] style="visibility:hidden"></input>
                         <button type="submit" class="btn btn-primary" asp-page-handler="AddReview">Отправить</button>
                     </div>
@@ -88,3 +90,16 @@
     }
     <a asp-page="./Index">Вернуться к каталогу</a>
 </div>
+
+@section Scripts {
+    <script>src = "https://cdn.jsdelivr.net/npm/sweetalert2@11.1.7/dist/sweetalert2.all.min.js" ></script>
+
+    <script>
+        $(document).ready(function () {
+            let msg = $('#StatusMessage').val();
+            if (msg.length > 0) {
+                swal.fire(msg);
+            }
+        }
+    </script>
+}

@@ -6,7 +6,7 @@ using MimeKit;
 
 namespace ElectroDetali.Pages.User
 {
-    public class RegisterModel : PageModel
+    public class RegisterModel : Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
         private readonly SmtpClient smtpClient;
@@ -18,27 +18,32 @@ namespace ElectroDetali.Pages.User
 
         public IActionResult OnPost(IFormCollection form)
         {
-            var login = form["InputEmail"].ToString();
-            var password = form["InputPassword"].ToString();
-            var name = form["InputName"].ToString();
-
-            var user = _context.Users.FirstOrDefault(u => u.Email == login 
-                                                    && u.Password == password
-                                                    && u.Isapp == false);
-            if (user == null)
+            try
             {
+                var login = form["InputEmail"].ToString();
+                var password = form["InputPassword"].ToString();
+                var name = form["InputName"].ToString();
+
+                var user = _context.Users.FirstOrDefault(u => u.Email == login
+                                                        && u.Password == password
+                                                        && u.Isapp == true);
+                if (user != null)
+                {
+                    StatusMessage = "Такой пользователь уже зарегистрирован";
+                    return Page();
+                }
                 var Random = new Random();
                 var code = Random.Next(100000);
 
                 user = new Models.User
                 {
-                    Email = login, 
+                    Email = login,
                     Password = password,
                     Name = name,
                     Code = code.ToString(),
                     Isapp = false
                 };
-                
+
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("ElectroDetali", "spam@goldev.org"));
                 message.To.Add(new MailboxAddress(name, login));
@@ -46,7 +51,7 @@ namespace ElectroDetali.Pages.User
 
                 var bodyBuilder = new BodyBuilder();
                 bodyBuilder.TextBody = "Спасибо за регистрацию в ElectroDetali!" +
-                    "Ваш код подтверждения: "+ code;
+                    "Ваш код подтверждения: " + code;
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using (var client = new SmtpClient())
@@ -61,8 +66,13 @@ namespace ElectroDetali.Pages.User
                 _context.SaveChanges();
 
                 return Redirect("User/Confirm");
+                
             }
-            return Redirect("/Error");
+            catch (Exception ex)
+            {
+                StatusMessage = "Ошибка при регистрации";
+                return Page();
+            }
         }
     }
 }

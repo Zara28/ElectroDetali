@@ -2,7 +2,9 @@
 @model ElectroDetali.Pages.User.BusketModel
 @{
 }
-
+<div class="d-none">
+    <input asp-for="StatusMessage" />
+</div>
 @if(Model.busket == null || Model.busket.Count == 0)
 {
     <h1>В корзине пока пусто</h1>
@@ -49,11 +51,23 @@ else
             <p>Оплата при получении</p>
             @if (Goods.IndexModel.currentUser.Email == null)
             {
-                <input name="mail" type="email" placeholder="Почта"></input>
+                <input name="mail" type="email" placeholder="Почта" required></input>
             }
             <input value="@ViewData["Sum"]" style="visibility:hidden"/>
             <p>Общая стоимость: @ViewData["Sum"]</p>
             <button type="submit" class="btn btn-primary" asp-page-handler="CreateBuy">Оформить</button>
         </form>
     </div>
+}
+@section Scripts {
+    <script>src = "https://cdn.jsdelivr.net/npm/sweetalert2@11.1.7/dist/sweetalert2.all.min.js" ></script>
+
+    <script>
+        $(document).ready(function () {
+            let msg = $('#StatusMessage').val();
+            if (msg.length > 0) {
+                swal.fire(msg);
+            }
+        }
+    </script>
 }

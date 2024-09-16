@@ -9,7 +9,7 @@ using ElectroDetali.Models;
 
 namespace ElectroDetali.Pages.Goods
 {
-    public class CreateModel : PageModel
+    public class CreateModel : Page
     {
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
 
@@ -20,26 +20,42 @@ namespace ElectroDetali.Pages.Goods
 
         public IActionResult OnGet()
         {
-        ViewData["Categoryid"] = new SelectList(_context.Categories, "Id", "Id");
-            return Page();
+            try
+            {
+                ViewData["Categoryid"] = new SelectList(_context.Categories, "Id", "Name");
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Ошибка при получении категорий:\r\n" + ex.Message;
+                return Page();
+            }
         }
 
         [BindProperty]
         public Good Good { get; set; } = default!;
         
 
-        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-          if (!ModelState.IsValid || _context.Goods == null || Good == null)
+            try
             {
+                if (!ModelState.IsValid || _context.Goods == null || Good == null)
+                {
+                    return Page();
+                }
+
+                _context.Goods.Add(Good);
+                await _context.SaveChangesAsync();
+
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Ошибка при добавлении товара:\r\n" + ex.Message;
                 return Page();
             }
-
-            _context.Goods.Add(Good);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
+            
         }
     }
 }

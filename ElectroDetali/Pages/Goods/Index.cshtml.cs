@@ -9,7 +9,7 @@ using ElectroDetali.Models;
 
 namespace ElectroDetali.Pages.Goods
 {
-    public class IndexModel : PageModel
+    public class IndexModel : Page
     {
         public static Models.User currentUser;
         private readonly ElectroDetali.Models.ElectroDetaliContext _context;
@@ -30,47 +30,56 @@ namespace ElectroDetali.Pages.Goods
         [BindProperty(SupportsGet = true)]
         public int PageSize { get; set; } = 15;
 
-        public async Task OnGetAsync(int? id, int? pageIndex)
+
+        public async Task OnGetAsync(int? Id, int? pageIndex)
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var goods = new List<Good>();
-            var random = new Random(1000000);
-            if (session == null)
+            try
             {
-                session.SetString("session", random.Next().ToString());
-            }
-            if (_context.Goods != null)
-            {
-                if(id == null)
+                var session = _httpContextAccessor.HttpContext.Session;
+                var goods = new List<Good>();
+                var random = new Random(1000000);
+                if (session == null)
                 {
-                    goods = await _context.Goods
-                        .Include(g => g.Category).ToListAsync();
+                    session.SetString("session", random.Next().ToString());
                 }
-                else goods = await _context.Goods
-                .Include(g => g.Category).Where(c => c.Categoryid == id).ToListAsync();
-
-                if(!String.IsNullOrEmpty(SearchString))
+                if (_context.Goods != null)
                 {
-                    goods = goods.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
-                }
-                else
-                {
-                    pageIndex = 1;
-                }
-                if (!String.IsNullOrEmpty(SortingValue))
-                {
-                    goods = SortingValue switch
+                    if (Id == null)
                     {
-                        "ASC" => goods.OrderBy(g => g.Price).ToList(),
-                        "DESC" => goods.OrderByDescending(g => g.Price).ToList(),
-                        _ => goods
-                    }; 
-                }
+                        goods = await _context.Goods
+                            .Include(g => g.Category).ToListAsync();
+                    }
+                    else goods = await _context.Goods
+                    .Include(g => g.Category).Where(c => c.Categoryid == Id).ToListAsync();
 
-                Good = PaginatedList<Good>.CreateAsync(
-                goods.ToList(), pageIndex ?? 1, PageSize);
+                    if (!String.IsNullOrEmpty(SearchString))
+                    {
+                        goods = goods.Where(g => g.Name.ToLower().Contains(SearchString.ToLower())).ToList();
+                    }
+                    else
+                    {
+                        pageIndex = 1;
+                    }
+                    if (!String.IsNullOrEmpty(SortingValue))
+                    {
+                        goods = SortingValue switch
+                        {
+                            "ASC" => goods.OrderBy(g => g.Price).ToList(),
+                            "DESC" => goods.OrderByDescending(g => g.Price).ToList(),
+                            _ => goods
+                        };
+                    }
+
+                    Good = PaginatedList<Good>.CreateAsync(
+                    goods.ToList(), pageIndex ?? 1, PageSize);
+                }
+                ViewData["Category"] = _context.Categories.ToList();
             }
-            ViewData["Category"] = _context.Categories.ToList();
+            catch (Exception ex)
+            {
+                StatusMessage = "Ошибка при получении товаров:\r\n" + ex.Message;
+            }
+            
         }
     }
 }
