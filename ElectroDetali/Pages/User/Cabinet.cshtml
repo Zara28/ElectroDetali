@@ -11,6 +11,12 @@
 }
 else
 {
+    <form method="post" name="Change">
+        <input name="Login" type="email" value="@Goods.IndexModel.currentUser.Email" style="width:contain" required/>
+        <input name="Name" value="@Goods.IndexModel.currentUser.Name" style="width:contain"  required />
+        <button type="submit" class="btn btn-primary" asp-page-handler="Change">Сохранить изменения</button>
+    </form>
+
     <form method="post" enctype="multipart/form-data" name="Save">
         <button type="submit" class="btn btn-primary" asp-page-handler="Save">Скачать историю заказов</button>
 

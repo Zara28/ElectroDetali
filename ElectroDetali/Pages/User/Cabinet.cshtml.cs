@@ -36,6 +36,19 @@ namespace ElectroDetali.Pages.User
             
         }
 
+        public IActionResult OnPostChange(IFormCollection form)
+        {
+            var name = form["Name"].ToString();
+            var email = form["Login"].ToString();
+
+            Goods.IndexModel.currentUser.Name = name;
+            Goods.IndexModel.currentUser.Email = email;
+
+            _context.Users.Update(Goods.IndexModel.currentUser);
+            _context.SaveChanges();
+            return Redirect("/User/Cabinet");
+        }
+
         public FileContentResult OnPostSave()
         {
             var tableToUse = new List<(string, string, string, string, string)>();
