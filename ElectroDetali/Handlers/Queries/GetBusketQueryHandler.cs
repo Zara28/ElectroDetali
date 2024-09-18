@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ElectroDetali.Handlers.Queries
 {
-    public class GetBusketQueryHandler : IRequestHandler<GetBusketQueryModel, ResponseModel<List<Buy>>
+    public class GetBusketQueryHandler : IRequestHandler<GetBusketQueryModel, ResponseModel<List<Buy>>>
     {
         private readonly ILogger _logger;
         private readonly ElectroDetaliContext _context;

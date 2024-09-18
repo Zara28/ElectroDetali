@@ -21,7 +21,7 @@ namespace ElectroDetali.Handlers.Queries
         {
             try
             {
-                var user = await _context.Users.FirstAsync(u => u.Email == request.Login && u.Password == request.Password);
+                var user = await _context.Users.FirstAsync(u => u.Email == request.Login && u.Password == request.Password.GetHash());
 
                 return new()
                 {

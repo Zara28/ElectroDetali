@@ -34,7 +34,7 @@ namespace ElectroDetali.Pages.User
 
                 if(res.ErrorMessage == null)
                 {
-                    return Redirect("User/Confirm");
+                    return Redirect("./Confirm");
                 }
 
                 StatusMessage = res.ErrorMessage;

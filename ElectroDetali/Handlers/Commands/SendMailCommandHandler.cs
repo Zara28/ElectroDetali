@@ -20,7 +20,7 @@ namespace ElectroDetali.Handlers.Commands
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("ElectroDetali", "spam@goldev.org"));
+                message.From.Add(new MailboxAddress("ElectroDetali", VariablesStorage.GetVariable("SMTP_MAIL")));
                 message.To.Add(new MailboxAddress("", request.Email));
                 message.Subject = request.Subject;
 
@@ -30,8 +30,8 @@ namespace ElectroDetali.Handlers.Commands
 
                 using (var client = new SmtpClient())
                 {
-                    client.Connect("mail.goldev.org", 587, false);
-                    client.Authenticate("spam@goldev.org", "gavri1lA123");
+                    client.Connect(VariablesStorage.GetVariable("SMTP_ADRESS"), 587, false);
+                    client.Authenticate(VariablesStorage.GetVariable("SMTP_MAIL"), VariablesStorage.GetVariable("SMTP_PASSWORD"));
                     client.Send(message);
                     client.Disconnect(true);
                 }

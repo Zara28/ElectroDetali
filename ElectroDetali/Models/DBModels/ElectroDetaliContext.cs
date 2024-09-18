@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using ElectroDetali.Models.HelperModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElectroDetali.Models;
@@ -31,7 +32,7 @@ public partial class ElectroDetaliContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Password=12345;Username=postgres;Database=ElectroDetali;Host=localhost");
+        => optionsBuilder.UseNpgsql(VariablesStorage.GetVariable("DB_CONNECTION"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -78,7 +78,7 @@ namespace ElectroDetali.Pages.User
                     Id = Goods.IndexModel.currentUser.Id
                 });
 
-                if(result.ErrorMessage != null)
+                if(result.ErrorMessage == null)
                 {
                     return File(System.IO.File.ReadAllBytes($"Report_{DateTime.Now.Date.ToShortDateString()}.xls"), "application/octet-stream", $"Report_{DateTime.Now.Date.ToShortDateString()}.xls");
 

@@ -88,6 +88,12 @@ namespace ElectroDetali.Pages.Goods
             }
             
         }
+
+        public IActionResult OnGetQuit()
+        {
+            currentUser = null;
+            return Redirect("/Goods/Index");
+        }
     }
 }
 

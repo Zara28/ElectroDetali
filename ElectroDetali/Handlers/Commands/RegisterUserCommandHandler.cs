@@ -26,10 +26,10 @@ namespace ElectroDetali.Handlers.Commands
             try
             {
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email
-                                                        && u.Password == request.Password
+                                                        && u.Password == request.Password.GetHash()
                                                         && u.Isapp == true);
                
-               if(user == null)
+               if(user != null)
                 {
                     return new()
                     {
@@ -43,7 +43,7 @@ namespace ElectroDetali.Handlers.Commands
                 user = new Models.User
                 {
                     Email = request.Email,
-                    Password = request.Password,
+                    Password = request.Password.GetHash(),
                     Name = request.Name,
                     Code = code.ToString(),
                     Isapp = false
@@ -55,7 +55,7 @@ namespace ElectroDetali.Handlers.Commands
                 {
                     Email = request.Email,
                     Subject = "Подтверждение регистрации на ElectroDetali",
-                    Body = "Ваш код подтверждения " + code
+                    Body = "Спасибо за регистрацию! Ваш код подтверждения " + code
                 });
 
                 await _context.SaveChangesAsync();
