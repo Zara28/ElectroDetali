@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using ElectroDetali.Models;
 using Spire.Xls;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
+using ElectroDetali.Models.HandlerModels.Queries;
+using ElectroDetali.Models.HandlerModels.Commands;
 
 namespace ElectroDetali.Pages.User
 {
     public class CabinetModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
 
-        public CabinetModel(ElectroDetali.Models.ElectroDetaliContext context)
+        public CabinetModel(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         public IList<Buy> Buy { get;set; } = default!;
@@ -26,16 +29,12 @@ namespace ElectroDetali.Pages.User
         {
             try
             {
-                if (_context.Buys != null)
+                var res = await _mediator.Send(new GetBuysQueryModel
                 {
-                    Buy = await _context.Buys
-                    .Include(b => b.Good)
-                    .Include(b => b.Point)
-                    .Include(b => b.User)
-                    .Where(b => b.Userid == Goods.IndexModel.currentUser.Id &&
-                                b.Isbasket == false)
-                    .OrderBy(b => b.Datecreate).ToListAsync();
-                }
+                    Id = Goods.IndexModel.currentUser.Id
+                });
+
+                Buy = res.Value;
             }
             catch (Exception ex)
             {
@@ -54,8 +53,13 @@ namespace ElectroDetali.Pages.User
                 Goods.IndexModel.currentUser.Name = name;
                 Goods.IndexModel.currentUser.Email = email;
 
-                _context.Users.Update(Goods.IndexModel.currentUser);
-                _context.SaveChanges();
+                var res = _mediator.Send(new ChangeUserDataCommandModel()
+                {
+                    UserId = Goods.IndexModel.currentUser.Id,
+                    UserName = name,
+                    Email = email,
+                });
+
                 return Redirect("/User/Cabinet");
             }
             catch (Exception ex)
@@ -65,49 +69,25 @@ namespace ElectroDetali.Pages.User
             }
         }
 
-        public FileContentResult OnPostSave()
+        public async Task<FileContentResult> OnPostSave()
         {
             try
             {
-                var tableToUse = new List<(string, string, string, string, string)>();
-                _context.Buys
-                    .Include(b => b.Good)
-                    .Include(b => b.Point)
-                    .Include(b => b.User)
-                    .Where(b => b.Userid == Goods.IndexModel.currentUser.Id &&
-                                b.Isbasket == false)
-                    .OrderBy(b => b.Datecreate).ToList()
-                    .ForEach(b =>
-                    {
-                        tableToUse.Add((b.Datecreate.Value.ToShortDateString(),
-                                        b.Datedelivery > DateTime.Now ?
-                                        "Ожидается доставка: " + b.Datedelivery.Value.ToShortDateString() :
-                                        "Доставлен",
-                                        b.Good.Name,
-                                        b.Good.Price.ToString(),
-                                        b.Point.Adress));
-                    });
-                Workbook book = new Workbook();
-                Worksheet sheet = book.Worksheets[0];
-
-                sheet.Range[$"A1"].Text = "Дата заказа";
-                sheet.Range[$"B1"].Text = "Статус заказа";
-                sheet.Range[$"C1"].Text = "Товар";
-                sheet.Range[$"D1"].Text = "Стоимость в рублях";
-                sheet.Range[$"E1"].Text = "Пункт выдачи";
-
-                for (int i = 2; i <= tableToUse.Count + 1; i++)
+                var result = await _mediator.Send(new CreateReportQueryModel
                 {
-                    sheet.Range[$"A{i}"].Text = tableToUse[i - 2].Item1;
-                    sheet.Range[$"B{i}"].Text = tableToUse[i - 2].Item2;
-                    sheet.Range[$"C{i}"].Text = tableToUse[i - 2].Item3;
-                    sheet.Range[$"D{i}"].Text = tableToUse[i - 2].Item4;
-                    sheet.Range[$"E{i}"].Text = tableToUse[i - 2].Item5;
+                    Id = Goods.IndexModel.currentUser.Id
+                });
+
+                if(result.ErrorMessage != null)
+                {
+                    return File(System.IO.File.ReadAllBytes($"Report_{DateTime.Now.Date.ToShortDateString()}.xls"), "application/octet-stream", $"Report_{DateTime.Now.Date.ToShortDateString()}.xls");
+
                 }
-
-                book.SaveToFile($"Report_{DateTime.Now.Date.ToShortDateString()}.xls");
-
-                return File(System.IO.File.ReadAllBytes($"Report_{DateTime.Now.Date.ToShortDateString()}.xls"), "application/octet-stream", $"Report_{DateTime.Now.Date.ToShortDateString()}.xls");
+                else
+                {
+                    StatusMessage = result.ErrorMessage;
+                    return null;
+                }
             }
             catch (Exception ex)
             {

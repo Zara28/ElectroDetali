@@ -7,33 +7,41 @@ using NuGet.Protocol.Plugins;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using System.Xml.Linq;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
+using ElectroDetali.Models.HandlerModels.Queries;
+using ElectroDetali.Models.HandlerModels.Commands;
 
 namespace ElectroDetali.Pages.User
 {
     public class BusketModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
+        private readonly IMediator _mediator;
         private readonly SmtpClient smtpClient;
-        public BusketModel(Models.ElectroDetaliContext context)
+        public BusketModel(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
             smtpClient = new SmtpClient();
         }
 
         public List<Models.Buy> busket { get; set; }
-        public void OnGet()
+        public async Task OnGetAsync()
         {
             try
             {
                 if (Goods.IndexModel.currentUser != null)
                 {
-                    busket = _context.Buys.Where(b => b.Userid == Goods.IndexModel.currentUser.Id
-                                            && b.Isbasket == true)
-                                       .Include(b => b.Good)
-                                       .Include(b => b.User)
-                                       .Include(b => b.Point).ToList();
-                    ViewData["Buskets"] = busket;
-                    ViewData["Sum"] = busket.Sum(b => b.Good.Price);
+                    var result = await _mediator.Send(new GetBusketQueryModel
+                    {
+                        Id = Goods.IndexModel.currentUser.Id,
+                    });
+                    if(result.ErrorMessage == null)
+                    {
+                        busket = result.Value.ToList();
+                        ViewData["Buskets"] = busket;
+                        ViewData["Sum"] = busket.Sum(b => b.Good.Price);
+                    }
+                    else StatusMessage = result.ErrorMessage;
+                   
                 }
                 else
                 {
@@ -46,14 +54,22 @@ namespace ElectroDetali.Pages.User
             }
         }
 
-        public IActionResult OnPostDelete(IFormCollection form)
+        public async Task<IActionResult> OnPostDelete(IFormCollection form)
         {
             try
             {
                 var id = Convert.ToInt32(form["Id"]);
-                var obj = _context.Buys.FirstOrDefault(b => b.Id == id);
-                _context.Buys.Remove(obj);
-                _context.SaveChanges();
+
+                var result = await _mediator.Send(new DeleteFormBusketCommandModel()
+                {
+                    BusketId = id,
+                });
+
+                if(result.ErrorMessage != null)
+                {
+                    StatusMessage = result.ErrorMessage;
+                }
+
                 return Redirect("/User/Busket");
             }
             catch (Exception ex)
@@ -68,33 +84,12 @@ namespace ElectroDetali.Pages.User
             try
             {
                 var mail = form["mail"].ToString();
-                var obj = await _context.Buys.Where(b => b.Userid == Goods.IndexModel.currentUser.Id
-                                            && b.Isbasket == true).ToListAsync();
 
-                foreach (var item in obj)
+                var result = await _mediator.Send(new CreateBuyCommandModel()
                 {
-                    item.Datecreate = DateTime.Now;
-                    item.Isbasket = false;
-                    _context.Buys.Update(item);
-                    _context.SaveChanges();
-                }
-
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("ElectroDetali", "spam@goldev.org"));
-                message.To.Add(new MailboxAddress("", mail));
-                message.Subject = "Заказ на сайте ElectroDetali";
-
-                var bodyBuilder = new BodyBuilder();
-                bodyBuilder.TextBody = "Ваш заказ успешно оформлен. Отслеживайте в личном кабинете состояние доставки";
-                message.Body = bodyBuilder.ToMessageBody();
-
-                using (var client = new SmtpClient())
-                {
-                    client.Connect("mail.goldev.org", 587, false);
-                    client.Authenticate("spam@goldev.org", "gavri1lA123");
-                    client.Send(message);
-                    client.Disconnect(true);
-                }
+                    Email = mail ?? Goods.IndexModel.currentUser.Email,
+                    UserId = Goods.IndexModel.currentUser.Id
+                });
 
                 busket = null;
                 return Redirect("/User/Busket");

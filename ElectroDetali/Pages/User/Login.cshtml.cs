@@ -1,5 +1,7 @@
 using ElectroDetali.Models;
+using ElectroDetali.Models.HandlerModels.Queries;
 using ElectroDetali.Models.HelperModels;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,22 +9,35 @@ namespace ElectroDetali.Pages.User
 {
     public class LoginModel : Models.HelperModels.Page
     {
-        private readonly ElectroDetali.Models.ElectroDetaliContext _context;
-        public LoginModel(ElectroDetaliContext context)
+        private readonly IMediator _mediator;
+        public LoginModel(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
-        public IActionResult OnPost(IFormCollection form)
+        public async Task<IActionResult> OnPostAsync(IFormCollection form)
         {
             try
             {
                 var login = form["InputEmail"].ToString();
                 var password = form["InputPassword"].ToString();
 
-                var user = _context.Users.First(u => u.Email == login && u.Password == password);
+                var res = await _mediator.Send(new LoginUserQueryModel
+                {
+                    Login = login,
+                    Password = password,
+                });
 
-                Goods.IndexModel.currentUser = user;
-                return Redirect("/Goods/Index");
+                if(res.ErrorMessage == null)
+                {
+                    Goods.IndexModel.currentUser = res.Value;
+                    return Redirect("/Goods/Index");
+                }
+                else
+                {
+                    StatusMessage = res.ErrorMessage;
+                    return Page();
+                }
+                
             }
             catch (Exception ex)
             {
