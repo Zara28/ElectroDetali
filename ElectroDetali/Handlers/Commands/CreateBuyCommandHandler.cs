@@ -36,7 +36,7 @@ namespace ElectroDetali.Handlers.Commands
                     _context.SaveChanges();
                 }
 
-                var result = _mediator.Send(new SendMailCommandModel()
+                var result = await _mediator.Send(new SendMailCommandModel()
                 {
                     Email = request.Email,
                     Subject = "Заказ на ElectroDetaili",
