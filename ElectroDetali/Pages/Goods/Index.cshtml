@@ -74,28 +74,35 @@
 
 <table class="table">
     <tbody style="vertical-align:bottom">
-     @foreach (var item in Model.Good) 
-    {
-        <tr>
-           <div class="card" style="width: 18rem; display:inline-block">
-                    <a asp-page="./Details" asp-route-id="@item.Id">
-                        <img src="@item.Image" class="card-img-top" alt="Изображение скоро появится">
-                        <div class="card-body">
-                            <h2 class="card-text">@item.Name @item.Price Р</h2>
-                            <p class="card-text">@item.Description</p>
-                        </div>
-                     </a>
+    @if(Model.Good != null)
+        {
+            @foreach (var item in Model.Good)
+            {
+                <tr>
+                    <div class="card" style="width: 18rem; display:inline-block">
+                        <a asp-page="./Details" asp-route-id="@item.Id">
+                            <img src="@item.Image" class="card-img-top" alt="Изображение скоро появится">
+                            <div class="card-body">
+                                <h2 class="card-text">@item.Name @item.Price Р</h2>
+                                <p class="card-text">@item.Description</p>
+                            </div>
+                        </a>
 
-                    <ul class="list-group list-group-flush">
-                        @if ((Goods.IndexModel.currentUser != null && Goods.IndexModel.currentUser.Email != null) && Goods.IndexModel.currentUser.Isadmin == true)
-                        {
-                            <li class="list-group-item"> <a asp-page="./Edit" asp-route-id="@item.Id">Изменить</a></li>
-                            <li class="list-group-item"> <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a></li>
-                        }
-                    </ul>
-            </div>
-        </tr>
-}
+                        <ul class="list-group list-group-flush">
+                            @if ((Goods.IndexModel.currentUser != null && Goods.IndexModel.currentUser.Email != null) && Goods.IndexModel.currentUser.Isadmin == true)
+                            {
+                                <li class="list-group-item"> <a asp-page="./Edit" asp-route-id="@item.Id">Изменить</a></li>
+                                <li class="list-group-item"> <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a></li>
+                            }
+                        </ul>
+                    </div>
+                </tr>
+            }
+        }
+        else
+        {
+            <p>Товаров нет</p>
+        }
 
     </tbody>
 </table>
