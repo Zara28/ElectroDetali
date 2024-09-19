@@ -25,11 +25,15 @@ namespace ElectroDetali.Handlers.Queries
                 List<Good> goods = new();
                 if (request.Id == null)
                 {
-                    goods = await _context.Goods.Include(g => g.Category).ToListAsync();
+                    goods = await _context.Goods.Include(g => g.Category)
+                                                .Include(g => g.Reviews).ToListAsync();
                 }
                 else
                 {
-                    goods.Add(await _context.Goods.FirstAsync(g => g.Id == request.Id));
+                    goods.Add(await _context.Goods
+                                            .Include(g => g.Reviews)
+                                            .ThenInclude(g => g.User)
+                                            .FirstAsync(g => g.Id == request.Id));
                 }
 
                 if(request.CategoryId != null)

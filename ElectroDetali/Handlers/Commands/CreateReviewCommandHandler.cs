@@ -27,7 +27,9 @@ namespace ElectroDetali.Handlers.Commands
                     Userid = request.UserId,
                     Value = request.Text
                 };
+
                 await _context.AddAsync(review);
+
                 await _context.SaveChangesAsync();
 
                 return new()
